@@ -43,23 +43,47 @@ class OcrEngine:
     def _extract_text_from_image(self, image_path: str) -> str:
         try:
             img = cv2.imread(image_path)
-
-            # Griye çevir
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-            #şu an elimdeki verileri için yüksek oranda doğruluğu var
-            gray = cv2.resize(gray, None, fx=2.0, fy=1.105, interpolation=cv2.INTER_LINEAR)
+            # 1. Parlaklık Kontrolü
+            mean_intensity = np.mean(gray)
 
+            # Eşik değerleri
+            T_SOLUK = 65
+            T_PARLAK = 155
 
-            # Gürültü azalt (Median Blur)
+            if mean_intensity < T_SOLUK:
+                fx_val = 1.5  # Yeniden boyutlandırmayı biraz azaltabiliriz
+                contrast_enhance = 4.0
+                sharpness_enhance = 5.0
+                gray = cv2.resize(gray, None, fx=fx_val, fy=1.105, interpolation=cv2.INTER_LINEAR)
+                print("Görüntü: KARANLIK/SOLUK Algılandı. Güçlü iyileştirme uygulanıyor.")
+
+            elif mean_intensity > T_PARLAK:
+                fx_val = 2.0
+                contrast_enhance = 1.5 # Kontrastı çok artırmamaya çalış
+                sharpness_enhance = 2.0
+                gray = cv2.resize(gray, None, fx=fx_val, fy=1.105, interpolation=cv2.INTER_LINEAR)
+                # Burada gerekirse ekstra bir 'yama' işlemi eklenebilir (örn: `cv2.fastNlMeansDenoising`)
+                print("Görüntü: ÇOK PARLAK Algılandı. Dengeleyici iyileştirme uygulanıyor.")
+
+            else:
+                # Normal/Dengeli için İşlemler (Mevcut optimizasyonları kullan)
+                fx_val = 1.6
+                contrast_enhance = 3.5
+                sharpness_enhance = 4.0
+                print("Görüntü: NORMAL/DENGELİ Algılandı. Standart iyileştirme uygulanıyor.")
+                gray = cv2.resize(gray, None, fx=fx_val, fy=1.0, interpolation=cv2.INTER_LINEAR)
+
+            # Ortak Ön İşleme Adımları
             gray = cv2.medianBlur(gray, 3)
 
-            # Adaptif threshold (ışık farklılıklarına karşı dayanıklı)
+            # Adaptif threshold
             thresh = cv2.adaptiveThreshold(
                 gray, 255,
                 cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                 cv2.THRESH_BINARY,
-                31, 7
+                31, 7 # C değerini (son parametre) parlak/soluk duruma göre değiştirmek de bir optimizasyon olabilir
             )
 
             kernel = np.ones((2, 2), np.uint8)
@@ -67,16 +91,17 @@ class OcrEngine:
 
             pil_img = Image.fromarray(thresh)
 
+            # Koşullu olarak belirlenen geliştirme katsayılarını kullanma
             enhancer_contrast = ImageEnhance.Contrast(pil_img)
-            pil_img = enhancer_contrast.enhance(3.0)
+            pil_img = enhancer_contrast.enhance(contrast_enhance)
 
             enhancer_sharpness = ImageEnhance.Sharpness(pil_img)
-            pil_img = enhancer_sharpness.enhance(4.0)
+            pil_img = enhancer_sharpness.enhance(sharpness_enhance)
 
             config = "--oem 3 --psm 3"
             text = pytesseract.image_to_string(pil_img, lang='tur', config=config)
 
-            return text
+            return self._clean_text(text)
 
         except Exception as e:
             return f"Metin çıkarma hatası: {e}"
