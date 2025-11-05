@@ -64,7 +64,6 @@ class OcrEngine:
                 contrast_enhance = 1.5 # Kontrastı çok artırmamaya çalış
                 sharpness_enhance = 2.0
                 gray = cv2.resize(gray, None, fx=fx_val, fy=1.105, interpolation=cv2.INTER_LINEAR)
-                # Burada gerekirse ekstra bir 'yama' işlemi eklenebilir (örn: `cv2.fastNlMeansDenoising`)
                 print("Görüntü: ÇOK PARLAK Algılandı. Dengeleyici iyileştirme uygulanıyor.")
 
             else:

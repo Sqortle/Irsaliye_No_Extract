@@ -1,14 +1,4 @@
 Dosya Adı | Belge Türü | Çıkarılan Bilgi
 --------------------------------------------------
-telefon ile çekilen mal kabul.jpeg | fiş | : M102025000021978
-tarayacı ile iletilen irsaliye.jpg | irsaliye | : M102025000021978
 IMG_1259.jpeg | fiş | İrsaliye No bulunamadı.
-tarayıcı ile iletilen fatura.jpg | fatura | : BLI2025000023919
-telefon ile çekilen irsaliye.jpeg | irsaliye | : M102025000021978
-20022 irsaliye.jpg | irsaliye | : M102025000020022
-17560 İrsaliye.jpg | fiş | : M102025000017560
-17560 giriş fişi.jpg | fiş | : M102025000017560
-telefon ile çekilen fatura.jpeg | fatura | : BLI2025000023919
-18174 mal kabul.jpg | fiş | : M102025000018174
 tarayıcı ile iletilen mal kabul.jpg | fiş | : M102025000021978
-la lorrıne.111 (2).pdf | fiş | : ET82025000001719
